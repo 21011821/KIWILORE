@@ -308,9 +308,9 @@ public class MainMenu extends GameEngine {
         if (mFrame != null) {
             mFrame.dispose(); // Close the current menu window
         }
-        if (backgroundMusic != null && audioClip != null && audioClip.getLoopClip() != null) { // audioClip is not defined, should be backgroundMusic
-             stopAudioLoop(backgroundMusic); // Stop menu music
-        }
+        //if (backgroundMusic != null && audioClip != null && audioClip.getLoopClip() != null) { // audioClip is not defined, should be backgroundMusic
+        //     stopAudioLoop(backgroundMusic); // Stop menu music
+        //}
 
 
         KiwiLoreGame actualGame = new KiwiLoreGame(currentResolution.width, currentResolution.height, mode);
@@ -384,15 +384,6 @@ public class MainMenu extends GameEngine {
             }
         }
     }
-
-    @Override public void mouseClicked(MouseEvent e) {}
-    @Override public void mouseReleased(MouseEvent e) {}
-    @Override public void mouseEntered(MouseEvent e) {}
-    @Override public void mouseExited(MouseEvent e) {}
-    @Override public void mouseMoved(MouseEvent e) {}
-    @Override public void mouseDragged(MouseEvent e) {}
-    @Override public void keyReleased(KeyEvent e) {}
-    @Override public void keyTyped(KeyEvent e) {}
 
     public static void main(String[] args) {
         MainMenu gameMenu = new MainMenu(800, 600);

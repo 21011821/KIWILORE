@@ -2,10 +2,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 
 
-/**
- * Represents the main game screen for Kiwi Lore.
- * This class is instantiated after a game mode is selected from the MainMenu.
- */
+
 public class KiwiLoreGame extends GameEngine {
 
     // Enum to represent the game mode
@@ -80,31 +77,9 @@ public class KiwiLoreGame extends GameEngine {
         FontMetrics fmLarge = mGraphics.getFontMetrics(INFO_FONT_LARGE);
         int playingTextWidth = fmLarge.stringWidth(playingText);
         drawBoldText((width() - playingTextWidth) / 2.0, height() / 2.0 - 20, playingText, INFO_FONT_LARGE.getName(), INFO_FONT_LARGE.getSize());
-
-        // Placeholder text for game content
-        String placeholderText = "(Actual game content would be here!)";
-        FontMetrics fmSmall = mGraphics.getFontMetrics(INFO_FONT_SMALL);
-        int placeholderTextWidth = fmSmall.stringWidth(placeholderText);
-        drawText((width() - placeholderTextWidth) / 2.0, height() / 2.0 + 30, placeholderText, INFO_FONT_SMALL.getName(), INFO_FONT_SMALL.getSize());
-
-        String escText = "Press ESC to (placeholder) return to Menu";
-         int escTextWidth = fmSmall.stringWidth(escText);
-        drawText((width() - escTextWidth) / 2.0, height() - 50, escText, INFO_FONT_SMALL.getName(), INFO_FONT_SMALL.getSize());
-
-        // TODO: Draw game characters, level, HUD, etc.
-        // For example:
-        // level.draw(mGraphics);
-        // player.draw(mGraphics);
-        // for (Enemy enemy : enemies) {
-        //    enemy.draw(mGraphics);
-        // }
-        // hud.draw(mGraphics);
     }
 
-    /**
-     * Handles key press events.
-     * @param e The KeyEvent.
-     */
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -126,16 +101,7 @@ public class KiwiLoreGame extends GameEngine {
         // if (e.getKeyCode() == KeyEvent.VK_W) { player.moveForward(); }
     }
 
-    // Other listener methods (can be left empty or implemented as needed)
-    @Override public void keyReleased(KeyEvent e) {}
-    @Override public void keyTyped(KeyEvent e) {}
-    @Override public void mouseClicked(MouseEvent e) {}
-    @Override public void mousePressed(MouseEvent e) {}
-    @Override public void mouseReleased(MouseEvent e) {}
-    @Override public void mouseEntered(MouseEvent e) {}
-    @Override public void mouseExited(MouseEvent e) {}
-    @Override public void mouseMoved(MouseEvent e) {}
-    @Override public void mouseDragged(MouseEvent e) {}
+
 
     // Main method for testing KiwiLoreGame directly (optional)
     /*
