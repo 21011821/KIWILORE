@@ -40,6 +40,7 @@ public class KiwiLoreGame extends GameEngine {
     int backgroundScrollSpeed = 50;
 
     int backgroundWidth; // Width of the background image
+    int backgroundHeight;
 
     public KiwiLoreGame(int width, int height, GameMode mode) {
         super(width, height);
@@ -62,11 +63,18 @@ public class KiwiLoreGame extends GameEngine {
 
         System.out.println("KiwiLoreGame initialized in " + gameModeText);
 
-        sheet = loadImage("KiwiSheet.png");
-        frames = new Image[16];
+        // = loadImage("KiwiSheet.png");
+        /*frames = new Image[16];
         for (int iy = 0; iy < 4; iy++) {
             for (int ix = 0; ix < 4; ix++) {
                 frames[iy * 4 + ix] = subImage(sheet, ix * 250, iy * 250, 250, 250);
+            }
+        }*/
+        sheet = loadImage("sp.png");
+        frames = new Image[16];
+        for (int iy = 0; iy < 4; iy++) {
+            for (int ix = 0; ix < 4; ix++) {
+                frames[iy * 4 + ix] = subImage(sheet, ix * 250, iy * 240, 250, 225);
             }
         }
 
@@ -83,6 +91,7 @@ public class KiwiLoreGame extends GameEngine {
             backgroundWidth = width(); // Fallback if image fails to load
         } else {
             backgroundWidth = backgroundImage.getWidth(null);
+            backgroundHeight = backgroundImage.getHeight(null);
         }
     }
 
@@ -91,7 +100,7 @@ public class KiwiLoreGame extends GameEngine {
         if (moving) {
             animTime += dt;
             if (animTime >= frameDuration) {
-                currentFrame = (currentFrame + 1) % 13;
+                currentFrame = (currentFrame + 1) % 15;
                 animTime -= frameDuration;
             }
         } else {
@@ -118,11 +127,13 @@ public class KiwiLoreGame extends GameEngine {
                 if (!isCentered) {
                     spriteX = width() / 2 - spriteWidth / 2; // Force center if not there
                 }
-            } else {
-                spriteX += spriteSpeed * dt;
-                if (spriteX > width() - spriteWidth) {
-                    spriteX = width() - spriteWidth;
-                }
+            }
+            // Apply sprite movement even if background is at edge or scrolling
+            spriteX += spriteSpeed * dt;
+            if (backgroundAtRightEdge && spriteX > width() - spriteWidth) {
+                spriteX = width() - spriteWidth;
+            } else if (!backgroundAtRightEdge && isCentered) {
+                spriteX = width() / 2 - spriteWidth / 2; // Maintain center
             }
         }
 
@@ -133,11 +144,13 @@ public class KiwiLoreGame extends GameEngine {
                 if (!isCentered) {
                     spriteX = width() / 2 - spriteWidth / 2; // Force center if not there
                 }
-            } else {
-                spriteX -= spriteSpeed * dt;
-                if (spriteX < 0) {
-                    spriteX = 0;
-                }
+            }
+            // Apply sprite movement even if background is at edge or scrolling
+            spriteX -= spriteSpeed * dt;
+            if (backgroundAtLeftEdge && spriteX < 0) {
+                spriteX = 0;
+            } else if (!backgroundAtLeftEdge && isCentered) {
+                spriteX = width() / 2 - spriteWidth / 2; // Maintain center
             }
         }
 
