@@ -151,7 +151,7 @@ public class KiwiLoreGame extends GameEngine {
     public void paintComponent() {
         // Draw the background image within the panel bounds
         if (backgroundImage != null) {
-            drawImage(backgroundImage, backgroundX, 0);
+            drawImage(backgroundImage, backgroundX, -400);
         } else {
             changeBackgroundColor(new Color(60, 179, 113));
             clearBackground(width(), height());
