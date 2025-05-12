@@ -22,3 +22,5 @@ Lighthearted integration of "Kiwi Lore" - perhaps levels involve finding fragmen
 ## Art Style: 
 Charming, cartoonish, terraria esk, and expressive. Focus on making the kiwis endearing and the environments visually appealing.
 
+![alt text](https://github.com/21011821/KIWILORE/blob/main/background.png "BG")
+![alt text](https://github.com/21011821/KIWILORE/blob/main/sprite%201.png "SPRITE")
