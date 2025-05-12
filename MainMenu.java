@@ -2,7 +2,7 @@ import java.awt.*;
 import java.awt.geom.*;
 import javax.swing.*;
 import java.awt.event.*;
-
+// GameEngine imports (assuming GameEngine.java is in the same package or correctly imported)
 
 public class MainMenu extends GameEngine {
 
@@ -24,7 +24,7 @@ public class MainMenu extends GameEngine {
     // Resolution settings
     private Dimension[] availableResolutions;
     private Rectangle2D[] resolutionButtonRects;
-    private Dimension currentResolution; // Will store the active resolution
+    private Dimension currentResolution;
 
     // Button text
     private final String playButtonText = "Play";
@@ -36,6 +36,9 @@ public class MainMenu extends GameEngine {
     // Music state
     private AudioClip backgroundMusic;
     private boolean isMuted = false;
+
+    // Background Image
+    private Image backgroundImage; // Added for background image
 
     // Constants for button styling and layout
     private final int BUTTON_WIDTH = 220;
@@ -57,8 +60,8 @@ public class MainMenu extends GameEngine {
      * @param height The height of the game window.
      */
     public MainMenu(int width, int height) {
-        super(width, height); // Calls the GameEngine constructor
-        currentResolution = new Dimension(width, height); // Initialize currentResolution
+        super(width, height);
+        currentResolution = new Dimension(width, height);
     }
 
     /**
@@ -70,31 +73,35 @@ public class MainMenu extends GameEngine {
             mFrame.setTitle("KIWI LORE - Main Menu");
         }
 
-        // Define available resolutions
+        // Load background image
+        // IMPORTANT: Place 'background.png' in the root directory of your compiled classes.
+        backgroundImage = loadImage("background.png");
+        if (backgroundImage == null) {
+            System.out.println("Warning: 'background.png' not found. Will use solid color background.");
+            // The GameEngine's loadImage already prints an error and exits if critical.
+            // If it were to return null without exiting, we'd need a fallback here.
+        }
+
+
         availableResolutions = new Dimension[] {
-            new Dimension(800, 600),
-            new Dimension(1024, 768),
-            new Dimension(1280, 720)
+                new Dimension(800, 600),
+                new Dimension(1024, 768),
+                new Dimension(1280, 720)
         };
-        // Ensure initial resolution is in the list or add it (optional, for highlighting)
         boolean initialResFound = false;
         for (Dimension res : availableResolutions) {
-            if (res.width == width() && res.height == height()) { // Use current GameEngine width/height
+            if (res.width == width() && res.height == height()) {
                 initialResFound = true;
-                currentResolution = res; // Make sure currentResolution is one of the objects from the array for == comparison
+                currentResolution = res;
                 break;
             }
         }
-         if (!initialResFound) {
-            // If the initial resolution (from constructor) is not in the presets,
+        if (!initialResFound) {
             // currentResolution keeps its constructor-set value.
-            // Highlighting might not work perfectly with '==' if it's a new Dimension object,
-            // but .equals() in paintSettingsMenu will handle it.
         }
 
-
         resolutionButtonRects = new Rectangle2D[availableResolutions.length];
-        recalculateButtonPositions(); // Calculate all button positions
+        recalculateButtonPositions();
 
         updateMuteButtonText();
 
@@ -110,41 +117,34 @@ public class MainMenu extends GameEngine {
 
     /**
      * Recalculates positions of all UI elements.
-     * Call this after window size changes if elements are not purely relative.
      */
     private void recalculateButtonPositions() {
         int centerX = width() / 2;
 
-        // Main Menu Buttons
         int playButtonY = height() / 2 - BUTTON_HEIGHT - 20;
         int settingsButtonY = height() / 2 + BUTTON_HEIGHT / 2 + 10;
         playButtonRect = new Rectangle2D.Double(centerX - BUTTON_WIDTH / 2, playButtonY, BUTTON_WIDTH, BUTTON_HEIGHT);
         settingsButtonRect = new Rectangle2D.Double(centerX - BUTTON_WIDTH / 2, settingsButtonY, BUTTON_WIDTH, BUTTON_HEIGHT);
 
-        // Game Mode Selection Buttons
         int storyModeButtonY = height() / 2 - BUTTON_HEIGHT - 5;
         int multiplayerButtonY = height() / 2 + BUTTON_HEIGHT / 2 - 5;
         storyModeButtonRect = new Rectangle2D.Double(centerX - BUTTON_WIDTH / 2, storyModeButtonY, BUTTON_WIDTH, BUTTON_HEIGHT);
         multiplayerButtonRect = new Rectangle2D.Double(centerX - BUTTON_WIDTH / 2, multiplayerButtonY, BUTTON_WIDTH, BUTTON_HEIGHT);
 
-        // Mute Button
         muteButtonRect = new Rectangle2D.Double(width() - MUTE_BUTTON_SIZE - 20, height() - MUTE_BUTTON_SIZE - 20, MUTE_BUTTON_SIZE, MUTE_BUTTON_SIZE);
 
-        // Resolution Buttons (in settings menu)
-        // Position them a bit lower to avoid overlap with the "Resolution:" label
-        int firstResButtonY = height() / 2 - 30 + 40; // Adjusted Y
-        if (availableResolutions != null && resolutionButtonRects != null) { // Ensure not null before iterating
+        int firstResButtonY = height() / 2 - 30 + 40;
+        if (availableResolutions != null && resolutionButtonRects != null) {
             for (int i = 0; i < availableResolutions.length; i++) {
                 resolutionButtonRects[i] = new Rectangle2D.Double(
-                    centerX - RESOLUTION_BUTTON_WIDTH / 2,
-                    firstResButtonY + i * (RESOLUTION_BUTTON_HEIGHT + 10), // 10px spacing
-                    RESOLUTION_BUTTON_WIDTH,
-                    RESOLUTION_BUTTON_HEIGHT
+                        centerX - RESOLUTION_BUTTON_WIDTH / 2,
+                        firstResButtonY + i * (RESOLUTION_BUTTON_HEIGHT + 10),
+                        RESOLUTION_BUTTON_WIDTH,
+                        RESOLUTION_BUTTON_HEIGHT
                 );
             }
         }
     }
-
 
     /**
      * Updates the game state.
@@ -152,7 +152,7 @@ public class MainMenu extends GameEngine {
      */
     @Override
     public void update(double dt) {
-        // No dynamic updates needed for this menu currently.
+        // No dynamic updates needed.
     }
 
     /**
@@ -160,20 +160,36 @@ public class MainMenu extends GameEngine {
      */
     @Override
     public void paintComponent() {
-        // It's crucial that mGraphics is not null here.
-        // GameEngine's GamePanel.paintComponent should set it before calling this.
         if (mGraphics == null) {
             System.err.println("mGraphics is null in MainMenu.paintComponent. Repainting might fail.");
-            return; // Avoid NullPointerException
+            return;
         }
-        changeBackgroundColor(new Color(135, 206, 250));
-        clearBackground(width(), height());
 
-        changeColor(new Color(0, 100, 0));
+        // Draw background image if loaded, otherwise a solid color
+        if (backgroundImage != null) {
+            drawImage(backgroundImage, 0, 0, width(), height()); // Draw stretched to fit
+        } else {
+            changeBackgroundColor(new Color(135, 206, 250)); // Fallback color
+            clearBackground(width(), height());
+        }
+
+        // Draw Game Title "KIWI LORE"
+        // Set title color to be visible against potentially dark backgrounds
+        changeColor(new Color(255, 255, 224)); // Light Yellow, good contrast
+        // Add a slight shadow for better readability on complex backgrounds
         String gameTitle = "KIWI LORE";
         FontMetrics titleFm = mGraphics.getFontMetrics(TITLE_FONT);
         int titleWidth = titleFm.stringWidth(gameTitle);
-        drawBoldText((width() - titleWidth) / 2.0, 100, gameTitle, TITLE_FONT.getName(), TITLE_FONT.getSize());
+        int titleX = (width() - titleWidth) / 2;
+        int titleY = 100;
+
+        // Shadow
+        changeColor(new Color(50,50,50,150)); // Dark semi-transparent shadow
+        drawBoldText(titleX + 3, titleY + 3, gameTitle, TITLE_FONT.getName(), TITLE_FONT.getSize());
+        // Actual Title
+        changeColor(new Color(255, 255, 224));
+        drawBoldText(titleX, titleY, gameTitle, TITLE_FONT.getName(), TITLE_FONT.getSize());
+
 
         if (currentMenuState == MenuState.MAIN) {
             paintMainMenu();
@@ -187,100 +203,117 @@ public class MainMenu extends GameEngine {
     }
 
     private void paintMainMenu() {
-        changeColor(new Color(34, 139, 34));
+        // Play Button
+        changeColor(new Color(34, 139, 34, 220)); // ForestGreen with some transparency
         drawSolidRectangle(playButtonRect.getX(), playButtonRect.getY(), playButtonRect.getWidth(), playButtonRect.getHeight());
         changeColor(white);
         drawCenteredText(playButtonText, playButtonRect, BUTTON_FONT);
 
-        changeColor(new Color(255, 165, 0));
+        // Settings Button
+        changeColor(new Color(255, 165, 0, 220)); // Orange with some transparency
         drawSolidRectangle(settingsButtonRect.getX(), settingsButtonRect.getY(), settingsButtonRect.getWidth(), settingsButtonRect.getHeight());
         changeColor(white);
         drawCenteredText(settingsButtonText, settingsButtonRect, BUTTON_FONT);
     }
 
     private void paintGameModeSelectionMenu() {
+        // Background for text for better readability
+        drawTextBackground(width()/2.0 - 200, height() / 2.0 - BUTTON_HEIGHT - 80, 400, 60);
+
         changeColor(black);
         String selectModeHeader = "Select Game Mode";
         FontMetrics headerFm = mGraphics.getFontMetrics(SUB_HEADER_FONT);
         int headerWidth = headerFm.stringWidth(selectModeHeader);
         drawBoldText((width() - headerWidth) / 2.0, height() / 2.0 - BUTTON_HEIGHT - 50, selectModeHeader, SUB_HEADER_FONT.getName(), SUB_HEADER_FONT.getSize());
 
-        changeColor(new Color(70, 130, 180)); // SteelBlue for Story Mode
+        // Story Mode Button
+        changeColor(new Color(70, 130, 180, 220)); // SteelBlue with transparency
         drawSolidRectangle(storyModeButtonRect.getX(), storyModeButtonRect.getY(), storyModeButtonRect.getWidth(), storyModeButtonRect.getHeight());
         changeColor(white);
         drawCenteredText(storyModeButtonText, storyModeButtonRect, BUTTON_FONT);
 
-        changeColor(new Color(220, 20, 60)); // Crimson for Multiplayer
+        // Multiplayer Button
+        changeColor(new Color(220, 20, 60, 220)); // Crimson with transparency
         drawSolidRectangle(multiplayerButtonRect.getX(), multiplayerButtonRect.getY(), multiplayerButtonRect.getWidth(), multiplayerButtonRect.getHeight());
         changeColor(white);
         drawCenteredText(multiplayerButtonText, multiplayerButtonRect, BUTTON_FONT);
 
+        drawTextBackground(width()/2.0 - 150, height() - 80, 300, 40);
         changeColor(black);
         String escText = "Press ESC to go back";
         FontMetrics infoFm = mGraphics.getFontMetrics(INFO_FONT);
         int escTextWidth = infoFm.stringWidth(escText);
-        drawText((width() - escTextWidth) / 2.0, height() - 60, escText, INFO_FONT.getName(), INFO_FONT.getSize());
+        drawText((width() - escTextWidth) / 2.0, height() - 55, escText, INFO_FONT.getName(), INFO_FONT.getSize());
     }
 
     private void paintSettingsMenu() {
+        // Background for text for better readability
+        drawTextBackground(width()/2.0 - 200, height() / 2.0 - 210, 400, 60);
+        drawTextBackground(width()/2.0 - 200, height() / 2.0 - 150, 400, 60);
+
+
         changeColor(black);
         String settingsHeader = "Settings";
         FontMetrics headerFm = mGraphics.getFontMetrics(SUB_HEADER_FONT);
         int headerWidth = headerFm.stringWidth(settingsHeader);
-        // Position header higher
         drawBoldText((width() - headerWidth) / 2.0, height() / 2.0 - 180, settingsHeader, SUB_HEADER_FONT.getName(), SUB_HEADER_FONT.getSize());
 
-        // Draw Resolution Options Label
         String resolutionLabel = "Resolution:";
-        FontMetrics resLabelFm = mGraphics.getFontMetrics(BUTTON_FONT); // Using BUTTON_FONT for "Resolution:"
+        FontMetrics resLabelFm = mGraphics.getFontMetrics(BUTTON_FONT);
         int resLabelWidth = resLabelFm.stringWidth(resolutionLabel);
-        // Position label appropriately above the buttons
         drawBoldText((width() - resLabelWidth) / 2.0, height() / 2.0 - 120, resolutionLabel, BUTTON_FONT.getName(), BUTTON_FONT.getSize());
 
 
-        if (availableResolutions != null && resolutionButtonRects != null) { // Check for null before use
+        if (availableResolutions != null && resolutionButtonRects != null) {
             for (int i = 0; i < availableResolutions.length; i++) {
                 Dimension res = availableResolutions[i];
-                // Ensure resolutionButtonRects[i] is not null if availableResolutions.length changed
                 if (i < resolutionButtonRects.length && resolutionButtonRects[i] != null) {
                     Rectangle2D btnRect = resolutionButtonRects[i];
                     String resText = res.width + " x " + res.height;
 
-                    // Highlight current resolution
                     if (res.equals(currentResolution)) {
-                        changeColor(new Color(100, 180, 100)); // A green highlight for selected
+                        changeColor(new Color(100, 180, 100, 230)); // Highlight with transparency
                     } else {
-                        changeColor(new Color(180, 180, 220)); // Light purple for others
+                        changeColor(new Color(180, 180, 220, 220)); // Others with transparency
                     }
                     drawSolidRectangle(btnRect.getX(), btnRect.getY(), btnRect.getWidth(), btnRect.getHeight());
-                    changeColor(black);
+                    changeColor(black); // Text color
                     drawCenteredText(resText, btnRect, RESOLUTION_FONT);
                 }
             }
         }
 
-
+        drawTextBackground(width()/2.0 - 150, height() - 80, 300, 40);
         changeColor(black);
         String escText = "Press ESC to go back";
         FontMetrics infoFm = mGraphics.getFontMetrics(INFO_FONT);
         int escTextWidth = infoFm.stringWidth(escText);
-        drawText((width() - escTextWidth) / 2.0, height() - 60, escText, INFO_FONT.getName(), INFO_FONT.getSize());
+        drawText((width() - escTextWidth) / 2.0, height() - 55, escText, INFO_FONT.getName(), INFO_FONT.getSize());
     }
 
+    /**
+     * Helper method to draw a semi-transparent background for text elements.
+     * @param x The x-coordinate of the background.
+     * @param y The y-coordinate of the background.
+     * @param w The width of the background.
+     * @param h The height of the background.
+     */
+    private void drawTextBackground(double x, double y, double w, double h) {
+        saveCurrentTransform(); // Save current graphics state
+        changeColor(new Color(200, 200, 200, 180)); // Light gray, semi-transparent
+        drawSolidRectangle(x, y, w, h);
+        restoreLastTransform(); // Restore graphics state (especially color)
+    }
+
+
     private void paintMuteButton() {
-        if (muteButtonRect == null) recalculateButtonPositions(); // Ensure muteButtonRect is initialized
-        changeColor(isMuted ? new Color(150, 150, 150) : new Color(100, 100, 100));
+        if (muteButtonRect == null) recalculateButtonPositions();
+        changeColor(isMuted ? new Color(150, 150, 150, 200) : new Color(100, 100, 100, 200)); // With transparency
         drawSolidRectangle(muteButtonRect.getX(), muteButtonRect.getY(), muteButtonRect.getWidth(), muteButtonRect.getHeight());
         changeColor(white);
         drawCenteredText(muteButtonDisplayString, muteButtonRect, MUTE_BUTTON_FONT);
     }
 
-    /**
-     * Utility method to draw text centered within a rectangle.
-     * @param text The string to draw.
-     * @param rect The rectangle to center the text in.
-     * @param font The font to use for the text.
-     */
     private void drawCenteredText(String text, Rectangle2D rect, Font font) {
         if (mGraphics == null || rect == null) return;
         FontMetrics fm = mGraphics.getFontMetrics(font);
@@ -294,27 +327,21 @@ public class MainMenu extends GameEngine {
         mGraphics.drawString(text, (int)x, (int)y);
     }
 
-
     private void updateMuteButtonText() {
         muteButtonDisplayString = isMuted ? "🔇" : "🔊";
     }
 
-    /**
-     * Starts a new game instance with the selected mode and current resolution.
-     * @param mode The game mode to start.
-     */
     private void startGame(KiwiLoreGame.GameMode mode) {
         System.out.println("Attempting to start " + mode.toString() + " with resolution " + currentResolution.width + "x" + currentResolution.height);
         if (mFrame != null) {
-            mFrame.dispose(); // Close the current menu window
+            mFrame.dispose();
         }
-        //if (backgroundMusic != null && audioClip != null && audioClip.getLoopClip() != null) { // audioClip is not defined, should be backgroundMusic
-        //     stopAudioLoop(backgroundMusic); // Stop menu music
-        //}
-
+        if (backgroundMusic != null && backgroundMusic.getLoopClip() != null && backgroundMusic.getLoopClip().isRunning()) {
+            stopAudioLoop(backgroundMusic);
+        }
 
         KiwiLoreGame actualGame = new KiwiLoreGame(currentResolution.width, currentResolution.height, mode);
-        GameEngine.createGame(actualGame, 60); // Create and start the actual game
+        GameEngine.createGame(actualGame, 60);
     }
 
     @Override
@@ -340,13 +367,11 @@ public class MainMenu extends GameEngine {
 
         if (currentMenuState == MenuState.MAIN) {
             if (playButtonRect.contains(clickPoint)) {
-                System.out.println("Play button clicked! Transitioning to game mode selection...");
                 currentMenuState = MenuState.GAME_MODE_SELECTION;
-                recalculateButtonPositions(); // Ensure game mode selection buttons are positioned correctly
+                recalculateButtonPositions();
             } else if (settingsButtonRect.contains(clickPoint)) {
-                System.out.println("Settings button clicked!");
                 currentMenuState = MenuState.SETTINGS;
-                recalculateButtonPositions(); // Recalculate positions for settings screen
+                recalculateButtonPositions();
             }
         } else if (currentMenuState == MenuState.GAME_MODE_SELECTION) {
             if (storyModeButtonRect.contains(clickPoint)) {
@@ -355,16 +380,13 @@ public class MainMenu extends GameEngine {
                 startGame(KiwiLoreGame.GameMode.MULTIPLAYER);
             }
         } else if (currentMenuState == MenuState.SETTINGS) {
-            if (resolutionButtonRects != null) { // Check for null
+            if (resolutionButtonRects != null) {
                 for (int i = 0; i < resolutionButtonRects.length; i++) {
                     if (resolutionButtonRects[i] != null && resolutionButtonRects[i].contains(clickPoint)) {
                         Dimension selectedRes = availableResolutions[i];
                         if (!selectedRes.equals(currentResolution)) {
-                            System.out.println("Resolution changed to: " + selectedRes.width + "x" + selectedRes.height);
                             currentResolution = selectedRes;
                             setWindowSize(selectedRes.width, selectedRes.height);
-                            // Buttons are recalculated based on new width()/height() in the next paint cycle,
-                            // but for immediate effect on settings screen itself:
                             recalculateButtonPositions();
                         }
                         return;
@@ -379,11 +401,12 @@ public class MainMenu extends GameEngine {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             if (currentMenuState == MenuState.SETTINGS || currentMenuState == MenuState.GAME_MODE_SELECTION) {
                 currentMenuState = MenuState.MAIN;
-                System.out.println("Exited to main menu via ESC key.");
-                recalculateButtonPositions(); // Recalculate for main menu layout
+                recalculateButtonPositions();
             }
         }
     }
+
+
 
     public static void main(String[] args) {
         MainMenu gameMenu = new MainMenu(800, 600);
