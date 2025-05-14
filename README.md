@@ -1,3 +1,6 @@
+# CodeFLOW
+Main menu.java -> kiwiLoreGame.java 
+
 # KIWILORE
 A Soothing platformer where flightless kiwis Explore, and discover ancient Kiwi Lore throughout lush New Zealand landscapes.
 
